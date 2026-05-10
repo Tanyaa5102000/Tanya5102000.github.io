@@ -996,6 +996,33 @@ const chapters = [
 
 const PREVIEW_COUNT = 24;
 
+const heartData = Array.from({ length: 12 }, (_, i) => ({
+  left: `${5 + i * 8}%`, bottom: '0', fontSize: `${12 + (i % 4) * 3}px`,
+}));
+
+const petalData = Array.from({ length: 14 }, (_, i) => ({
+  left: `${(i * 7.3 + 2) % 98}%`,
+  fontSize: `${0.9 + (i % 3) * 0.3}rem`,
+  duration: 8 + (i % 5) * 1.4,
+  delay: i * 0.65,
+  opacity: 0.35 + (i % 3) * 0.15,
+}));
+
+function applyTilt(e) {
+  const el = e.currentTarget;
+  const rect = el.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width - 0.5;
+  const y = (e.clientY - rect.top) / rect.height - 0.5;
+  el.style.transform = `perspective(700px) rotateY(${x * 16}deg) rotateX(${-y * 16}deg) scale(1.05)`;
+  el.style.transition = 'transform 0.1s ease';
+}
+
+function resetTilt(e) {
+  const el = e.currentTarget;
+  el.style.transform = '';
+  el.style.transition = 'transform 0.45s ease';
+}
+
 const FloatingHeart = ({ style }) => (
   <motion.div
     className="floating-heart"
@@ -1007,7 +1034,41 @@ const FloatingHeart = ({ style }) => (
   </motion.div>
 );
 
-const Lightbox = ({ chapter, photoIndex, onClose, onPrev, onNext }) => {
+const RosePetal = ({ style }) => (
+  <motion.div
+    className="rose-petal"
+    style={{ left: style.left, fontSize: style.fontSize, opacity: style.opacity, top: 0 }}
+    animate={{ y: ['-5vh', '108vh'], rotate: [0, 180, 360], x: [0, 14, -9, 18, 0] }}
+    transition={{ duration: style.duration, repeat: Infinity, delay: style.delay, ease: 'linear' }}
+  >
+    ❀
+  </motion.div>
+);
+
+const LazyPhoto = ({ src, alt }) => {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="lazy-photo-wrap">
+      {!loaded && <div className="photo-shimmer" />}
+      <img
+        className="lazy-img"
+        src={src}
+        alt={alt}
+        loading="lazy"
+        style={{ opacity: loaded ? 1 : 0 }}
+        onLoad={() => setLoaded(true)}
+      />
+    </div>
+  );
+};
+
+const slideVariants = {
+  enter: (dir) => ({ x: dir * 90, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir) => ({ x: dir * -90, opacity: 0 }),
+};
+
+const Lightbox = ({ chapter, photoIndex, direction, onClose, onPrev, onNext }) => {
   const photo = chapter.photos[photoIndex];
 
   useEffect(() => {
@@ -1034,13 +1095,26 @@ const Lightbox = ({ chapter, photoIndex, onClose, onPrev, onNext }) => {
     >
       <motion.div
         className="lightbox-content"
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
+        exit={{ scale: 0.92, opacity: 0 }}
         transition={{ duration: 0.3 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <img src={`/photos/${photo}`} alt={`Memory from ${chapter.title}`} className="lightbox-img" />
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.img
+            key={photo}
+            src={`/photos/${photo}`}
+            alt={`Memory from ${chapter.title}`}
+            className="lightbox-img"
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.28, ease: 'easeInOut' }}
+          />
+        </AnimatePresence>
         <button className="lightbox-close" onClick={onClose} aria-label="Close"><X size={22} /></button>
         {photoIndex > 0 && (
           <button className="lightbox-nav prev" onClick={onPrev} aria-label="Previous"><ChevronLeft size={28} /></button>
@@ -1153,10 +1227,11 @@ const ChapterSection = ({ chapter, onPhotoClick }) => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: Math.min(idx, 12) * 0.03 }}
-            whileHover={{ scale: 1.03 }}
           >
-            <img src={`/photos/${photo}`} alt={`${chapter.title} memory ${idx + 1}`} loading="lazy" />
-            <div className="photo-overlay"><Heart size={20} fill="currentColor" /></div>
+            <div className="photo-tilt" onMouseMove={applyTilt} onMouseLeave={resetTilt}>
+              <LazyPhoto src={`/photos/${photo}`} alt={`${chapter.title} memory ${idx + 1}`} />
+              <div className="photo-overlay"><Heart size={20} fill="currentColor" /></div>
+            </div>
           </motion.button>
         ))}
       </div>
@@ -1191,32 +1266,29 @@ export default function App() {
 
   const visibleChapters = chapters.filter(c => selected.has(c.id));
 
-  const openLightbox = useCallback((chapter, photoIndex) => setLightbox({ chapter, photoIndex }), []);
+  const openLightbox = useCallback((chapter, photoIndex) => setLightbox({ chapter, photoIndex, direction: 0 }), []);
   const closeLightbox = useCallback(() => setLightbox(null), []);
 
   const goNext = useCallback(() => {
     setLightbox(prev => {
       if (!prev || prev.photoIndex >= prev.chapter.photos.length - 1) return prev;
-      return { ...prev, photoIndex: prev.photoIndex + 1 };
+      return { ...prev, photoIndex: prev.photoIndex + 1, direction: 1 };
     });
   }, []);
 
   const goPrev = useCallback(() => {
     setLightbox(prev => {
       if (!prev || prev.photoIndex <= 0) return prev;
-      return { ...prev, photoIndex: prev.photoIndex - 1 };
+      return { ...prev, photoIndex: prev.photoIndex - 1, direction: -1 };
     });
   }, []);
-
-  const hearts = Array.from({ length: 12 }, (_, i) => ({
-    left: `${5 + i * 8}%`, bottom: '0', fontSize: `${12 + Math.random() * 10}px`,
-  }));
 
   return (
     <div className="app">
       <section className="hero">
         <div className="hero-hearts">
-          {hearts.map((style, i) => <FloatingHeart key={i} style={style} />)}
+          {heartData.map((style, i) => <FloatingHeart key={i} style={style} />)}
+          {petalData.map((style, i) => <RosePetal key={i} style={style} />)}
         </div>
         <motion.div className="hero-content" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2, ease: 'easeOut' }}>
           <p className="hero-eyebrow">May 9th, 2026</p>
@@ -1257,7 +1329,7 @@ export default function App() {
 
       <AnimatePresence>
         {lightbox && (
-          <Lightbox chapter={lightbox.chapter} photoIndex={lightbox.photoIndex} onClose={closeLightbox} onNext={goNext} onPrev={goPrev} />
+          <Lightbox chapter={lightbox.chapter} photoIndex={lightbox.photoIndex} direction={lightbox.direction ?? 0} onClose={closeLightbox} onNext={goNext} onPrev={goPrev} />
         )}
       </AnimatePresence>
     </div>
