@@ -1343,7 +1343,9 @@ export default function App() {
   return (
     <div className="app">
       <WanderingCaricature src="/caricature/4f20e70e-b21e-422a-9e36-c28a8f3bf7a8.jpeg" delay={0} size={110} />
-      <WanderingCaricature src="/caricature/846c4742-c5f6-4099-ac30-2d75295643f5.jpeg" delay={1800} size={110} />
+      <WanderingCaricature src="/caricature/846c4742-c5f6-4099-ac30-2d75295643f5.jpeg" delay={1400} size={110} />
+      <WanderingCaricature src="/caricature/062c6af3-0a5a-4b75-9e80-afa866cbe206.jpeg" delay={2800} size={110} />
+      <WanderingCaricature src="/caricature/1a56a7ac-60ad-40cc-960b-d4532ae1633f.jpeg" delay={4200} size={110} />
       <section className="hero">
         <div className="hero-hearts">
           {heartData.map((style, i) => <FloatingHeart key={i} style={style} />)}
