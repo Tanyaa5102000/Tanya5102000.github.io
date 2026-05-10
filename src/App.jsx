@@ -1129,6 +1129,26 @@ const Lightbox = ({ chapter, photoIndex, direction, onClose, onPrev, onNext }) =
   );
 };
 
+const RomanceScene = () => (
+  <div className="romance-scene">
+    <motion.span
+      className="romance-figure"
+      animate={{ x: [0, 4, 0], y: [0, -4, 0] }}
+      transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+    >🧑</motion.span>
+    <motion.span
+      className="romance-heart"
+      animate={{ scale: [0.8, 1.4, 0.8], opacity: [0.5, 1, 0.5] }}
+      transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+    >♥</motion.span>
+    <motion.span
+      className="romance-figure"
+      animate={{ x: [0, -4, 0], y: [0, -4, 0] }}
+      transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+    >👩</motion.span>
+  </div>
+);
+
 const ChapterPicker = ({ selected, onToggle, onSelectAll, onClearAll }) => (
   <motion.section
     className="picker-section"
@@ -1166,11 +1186,17 @@ const ChapterPicker = ({ selected, onToggle, onSelectAll, onClearAll }) => (
             <div className="picker-card-img">
               <img src={`/photos/${chapter.photos[0]}`} alt={chapter.title} loading="lazy" />
               <div className="picker-card-overlay" />
-              {isSelected && (
-                <motion.div className="picker-check" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
-                  ♥
-                </motion.div>
-              )}
+              <AnimatePresence mode="wait">
+                {isSelected ? (
+                  <motion.div key="check" className="picker-check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
+                    ♥
+                  </motion.div>
+                ) : (
+                  <motion.div key="romance" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.3 }}>
+                    <RomanceScene />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <div className="picker-card-body">
               <span className="picker-card-number">{chapter.number}</span>
@@ -1291,7 +1317,7 @@ export default function App() {
           {petalData.map((style, i) => <RosePetal key={i} style={style} />)}
         </div>
         <motion.div className="hero-content" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2, ease: 'easeOut' }}>
-          <p className="hero-eyebrow">May 9th, 2026</p>
+          <p className="hero-eyebrow">May 10th, 2026</p>
           <h1 className="hero-title">Happy Birthday,<br />Tanya</h1>
           <p className="hero-subtitle">
             Twenty-six years of being you — brilliant, warm, endlessly beautiful.<br />
@@ -1313,9 +1339,31 @@ export default function App() {
           ))}
         </AnimatePresence>
         {selected.size === 0 && (
-          <motion.p className="timeline-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            Select a chapter above to begin ♥
-          </motion.p>
+          <motion.div className="timeline-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="empty-couple">
+              <motion.span
+                className="empty-figure"
+                animate={{ x: [0, 10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              >🧑</motion.span>
+              <div className="empty-hearts-wrap">
+                {[0, 1, 2].map(i => (
+                  <motion.span
+                    key={i}
+                    className="empty-heart-float"
+                    animate={{ y: [0, -28, -56], opacity: [0, 1, 0], x: [-8 + i * 8, -4 + i * 6, -8 + i * 8] }}
+                    transition={{ duration: 2.2, repeat: Infinity, delay: i * 0.65, ease: 'easeOut' }}
+                  >♥</motion.span>
+                ))}
+              </div>
+              <motion.span
+                className="empty-figure"
+                animate={{ x: [0, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
+              >👩</motion.span>
+            </div>
+            <p className="empty-label">Select a chapter above to begin ♥</p>
+          </motion.div>
         )}
       </main>
 
