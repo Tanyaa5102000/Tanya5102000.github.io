@@ -1040,7 +1040,7 @@ const Lightbox = ({ chapter, photoIndex, onClose, onPrev, onNext }) => {
         transition={{ duration: 0.3 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <img src={`/photos/${photo}`} alt={`Memory from ${chapter.title}`} className="lightbox-img" />
+        <img src={`${import.meta.env.BASE_URL}photos/${photo}`} alt={`Memory from ${chapter.title}`} className="lightbox-img" />
         <button className="lightbox-close" onClick={onClose} aria-label="Close"><X size={22} /></button>
         {photoIndex > 0 && (
           <button className="lightbox-nav prev" onClick={onPrev} aria-label="Previous"><ChevronLeft size={28} /></button>
@@ -1090,7 +1090,7 @@ const ChapterPicker = ({ selected, onToggle, onSelectAll, onClearAll }) => (
             whileHover={{ y: -4 }}
           >
             <div className="picker-card-img">
-              <img src={`/photos/${chapter.photos[0]}`} alt={chapter.title} loading="lazy" />
+              <img src={`${import.meta.env.BASE_URL}photos/${chapter.photos[0]}`} alt={chapter.title} loading="lazy" />
               <div className="picker-card-overlay" />
               {isSelected && (
                 <motion.div className="picker-check" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}>
@@ -1155,7 +1155,7 @@ const ChapterSection = ({ chapter, onPhotoClick }) => {
             transition={{ duration: 0.4, delay: Math.min(idx, 12) * 0.03 }}
             whileHover={{ scale: 1.03 }}
           >
-            <img src={`/photos/${photo}`} alt={`${chapter.title} memory ${idx + 1}`} loading="lazy" />
+            <img src={`${import.meta.env.BASE_URL}photos/${photo}`} alt={`${chapter.title} memory ${idx + 1}`} loading="lazy" />
             <div className="photo-overlay"><Heart size={20} fill="currentColor" /></div>
           </motion.button>
         ))}
