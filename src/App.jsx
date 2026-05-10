@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import './index.css';
@@ -1129,6 +1129,37 @@ const Lightbox = ({ chapter, photoIndex, direction, onClose, onPrev, onNext }) =
   );
 };
 
+const WanderingCaricature = ({ src, delay = 0, size = 120 }) => {
+  const [pos, setPos] = useState(() => ({
+    x: 5 + Math.random() * 80,
+    y: 5 + Math.random() * 80,
+  }));
+
+  useEffect(() => {
+    const move = () => setPos({
+      x: 5 + Math.random() * 80,
+      y: 5 + Math.random() * 80,
+    });
+    const t = setTimeout(() => {
+      move();
+      const id = setInterval(move, 3000 + Math.random() * 2000);
+      return () => clearInterval(id);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+
+  return (
+    <motion.div
+      className="caricature-float"
+      animate={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+      transition={{ duration: 2.8, ease: [0.45, 0, 0.55, 1] }}
+      style={{ width: size, height: size }}
+    >
+      <img src={src} alt="caricature" />
+    </motion.div>
+  );
+};
+
 const RomanceScene = () => (
   <div className="romance-scene">
     <motion.span
@@ -1311,6 +1342,8 @@ export default function App() {
 
   return (
     <div className="app">
+      <WanderingCaricature src="/caricature/4f20e70e-b21e-422a-9e36-c28a8f3bf7a8.jpeg" delay={0} size={110} />
+      <WanderingCaricature src="/caricature/846c4742-c5f6-4099-ac30-2d75295643f5.jpeg" delay={1800} size={110} />
       <section className="hero">
         <div className="hero-hearts">
           {heartData.map((style, i) => <FloatingHeart key={i} style={style} />)}
