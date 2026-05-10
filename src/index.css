@@ -315,6 +315,29 @@ h1, h2, h3, .serif {
   text-transform: uppercase;
 }
 
+.romance-scene {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  z-index: 3;
+  background: rgba(44, 26, 34, 0.65);
+  padding: 0.25rem 0.65rem;
+  border-radius: 100px;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+.romance-figure { font-size: 1rem; }
+
+.romance-heart {
+  color: var(--rose-light);
+  font-size: 0.85rem;
+}
+
 .picker-cta {
   margin-top: 2.5rem;
 }
@@ -342,6 +365,35 @@ h1, h2, h3, .serif {
 .timeline-empty {
   text-align: center;
   padding: 5rem 2rem;
+}
+
+.empty-couple {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.empty-figure { font-size: 3rem; }
+
+.empty-hearts-wrap {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-heart-float {
+  position: absolute;
+  color: var(--rose-light);
+  font-size: 1rem;
+}
+
+.empty-label {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.4rem;
   font-style: italic;
